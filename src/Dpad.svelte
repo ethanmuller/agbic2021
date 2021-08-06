@@ -75,6 +75,8 @@ const dispatch = createEventDispatcher();
  const dpadRelease = function() {
      dpadPressed = false
      dpadDirClass = ''
+
+     dispatch('release')
  }
 
 
@@ -141,7 +143,8 @@ const dispatch = createEventDispatcher();
 
 <style>
  .ui {
-	 background-color: #666BAB;
+	 --bg: #666BAB;
+     background-color: var(--bg);
  }
 
 #dpad {
