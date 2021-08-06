@@ -9,7 +9,7 @@
  let oy = y
  let vx = x
  let vy = y
-	let s = 3
+ let s = 3
  let pDir = 1
  let dpadPressed = false
  let lastMove = Date.now()
