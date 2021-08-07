@@ -400,7 +400,7 @@ s: {s}
 	 top: 1rem;
 	 left: 1rem;
 	 color: black;
-	 opacity: 0.4;
+	 opacity: 0.2;
 	 /* mix-blend-mode: difference; */
  }
 
