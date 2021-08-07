@@ -18,6 +18,7 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "inkjs": "^2.0.0",
     "p5": "^1.4.0",
     "p5-svelte": "^2.2.2",
     "sirv-cli": "^1.0.0"

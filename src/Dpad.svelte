@@ -81,6 +81,7 @@ const dispatch = createEventDispatcher();
 
 
  function handleKeydown(e) {
+     console.log(e)
      switch(e.key) {
          case 'ArrowUp':
          case 'w':
@@ -107,6 +108,7 @@ const dispatch = createEventDispatcher();
  }
 
  function handleKeyup(e) {
+     console.log(e)
      switch(e.key) {
          case 'ArrowUp':
          case 'w':

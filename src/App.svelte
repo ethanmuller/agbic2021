@@ -1,6 +1,62 @@
 <script>
+ import { onMount } from 'svelte'
+ import { Story } from 'inkjs'
  import P5 from 'p5-svelte';
  import Dpad from './Dpad.svelte';
+
+
+ let currentLine = ''
+ let currentSpeaker = null
+ let paragraphs = []
+ let story
+ let choices = []
+ let mode = 'WORLD'
+
+ onMount(async () => {
+     const res = await fetch(`/gus.json`)
+     const json = await res.json()
+     story = new Story(json)
+     // continueStory()
+ })
+
+ function currentLineToParagraph() {
+     paragraphs.push({ text: currentLine, speaker: currentSpeaker })
+     paragraphs = paragraphs
+
+     currentLine = ''
+     currentSpeaker = null
+ }
+
+ function getParagraph() {
+     while(story.canContinue) {
+         let nextLine = story.Continue()
+
+         if (nextLine === '...\n') {
+             return
+         }
+
+         currentLine += nextLine
+     }
+ }
+
+ function continueStory() {
+     while (story.canContinue) {
+         let nextLine = story.Continue()
+         currentLine += nextLine
+     }
+
+     choices = story.currentChoices
+     // getParagraph()
+     // currentLineToParagraph()
+ }
+
+ function choose(index) {
+     currentLine = ''
+     paragraphs = []
+     story.ChooseChoiceIndex(index)
+     continueStory()
+ }
+
 
  let inc
  let x = 0
@@ -13,13 +69,13 @@
  let pDir = 1
  let dpadPressed = false
  let lastMove = Date.now()
- const moveTimeout = 130
+ const moveTimeout = 300
  // const moveTimeout = 600
 
  const map = `
 .........
 .........
-..U......
+..U.T....
 .........
 .........
 .........
@@ -51,12 +107,12 @@ function mapGet(x, y) {
 		 for (let cx = 0; cx < map[0].length; cx++) {
 			 const thing = mapGet(cx, cy)
 
-			 console.log(thing)
-
 			 switch(thing) {
 				 case 'U':
 					 x = cx
 					 y = cy
+                     ox = x
+                     oy = y
 					 break;
 				 case 'T':
 			  		 room.push({
@@ -81,7 +137,6 @@ function mapGet(x, y) {
  }
 
  populateRoom()
- console.log(room)
 
  // ========
  // OBJECTS
@@ -217,6 +272,8 @@ function lerp(v0, v1, t) {
 		 const percentDone = (now - lastMove)/moveTimeout
 		 vx = lerp(ox, x, Math.min(percentDone, 1))
 		 vy = lerp(oy, y, Math.min(percentDone, 1))
+         vx = x
+         vy = y
 		 // const dx = x - vx
 		 // 		 vx = vx + dx * 0.3
 		 // 		 const dy = y - vy
@@ -251,8 +308,10 @@ function lerp(v0, v1, t) {
  };
 
  function handlePress(e) {
-	 movePlayer(e.detail.dir)
 	 dpadPressed = true
+     if (mode === 'WORLD') {
+         movePlayer(e.detail.dir)
+     }
  }
 
  function handleRelease() {
@@ -278,7 +337,10 @@ function lerp(v0, v1, t) {
 	 const ty = y + dy
 
 	 if (mapGet(tx, ty) === 'T') {
-		 console.log('hi')
+         mode = 'ENGAGEMENT'
+         dpadPressed = false
+         story.ChoosePathString('talk')
+         continueStory()
 	 } else {
 		 x = tx
 		 y = ty
@@ -292,15 +354,38 @@ function lerp(v0, v1, t) {
 <main>
 	<P5 {sketch} />
 
-	<Dpad on:press={ handlePress } on:release={ handleRelease } />
+    {#if mode === 'WORLD'}
+        <Dpad on:press={ handlePress } on:release={ handleRelease } />
+    {/if}
 	<!-- <input type="range" min="1" max="8" step="0.01" bind:value={ s }> -->
 
+        {#if story && choices && choices.length > 0}
+            {#each choices as choice,i}
+                <button class="ab__option" on:click|preventDefault={() => choose(i)}>{choice.text}</button>
+            {/each}
+        {/if}
+        {#if mode === 'ENGAGEMENT' && story && !story.canContinue && choices.length === 0}
+            <button on:click={() => {
+
+                             currentLine = ''
+                             mode = 'WORLD'
+                             }}>ok</button>
+        {/if}
+
 	<pre class="debug">
+mode: <strong>{mode}</strong>
+currentLine: {currentLine}
+{#if mode === 'ENGAGEMENT'}
+canContinue: {story && story.canContinue}
+choices: {choices.length}
+{/if}
+{#if mode === 'WORLD'}
 x: {x}
 y: {y}
 pDir: {pDir}
 dpadPressed: {dpadPressed}
 s: {s}
+{/if}
 	</pre>
 </main>
 
