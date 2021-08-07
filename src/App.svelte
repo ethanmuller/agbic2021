@@ -272,8 +272,8 @@ function lerp(v0, v1, t) {
 		 const percentDone = (now - lastMove)/moveTimeout
 		 vx = lerp(ox, x, Math.min(percentDone, 1))
 		 vy = lerp(oy, y, Math.min(percentDone, 1))
-         vx = x
-         vy = y
+         // vx = x
+         // vy = y
 		 // const dx = x - vx
 		 // 		 vx = vx + dx * 0.3
 		 // 		 const dy = y - vy
@@ -352,7 +352,12 @@ function lerp(v0, v1, t) {
 </script>
 
 <main>
-	<P5 {sketch} />
+	<div class="screen">
+		<P5 {sketch} />
+		<div class="dialog-box">
+			<div class={ `dialog-box__inner ${mode === 'ENGAGEMENT' ? 'dialog-box__inner--is-open' : ''}` }>{currentLine}</div>
+		</div>
+	</div>
 
     {#if mode === 'WORLD'}
         <Dpad on:press={ handlePress } on:release={ handleRelease } />
@@ -395,6 +400,41 @@ s: {s}
 	 top: 1rem;
 	 left: 1rem;
 	 color: black;
+	 opacity: 0.4;
 	 /* mix-blend-mode: difference; */
+ }
+
+ .screen {
+	 position: relative;
+	 overflow: hidden;
+ }
+
+ .dialog-box {
+	 position: absolute;
+	 top: 0;
+	 left: 0;
+	 width: 100%;
+
+	 /* this stuff is a hack
+	    for a 1/1 aspect ratio */
+	 height: 0;
+	 padding-bottom: 100%;
+ }
+
+ .dialog-box__inner {
+	 position: absolute;
+	 top: 0;
+	 left: 0;
+	 width: 100%;
+	 height: 100%;
+	 background: red;
+	 color: white;
+
+	 transition: 500ms transform cubic-bezier(0.190, 1.000, 0.220, 1.000);
+	 transform: translate3d(0, 100%, 0);
+ }
+
+ .dialog-box__inner--is-open {
+	 transform: translate3d(0, 0%, 0);
  }
 </style>
