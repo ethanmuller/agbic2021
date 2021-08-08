@@ -11,6 +11,7 @@
  let story
  let choices = []
  let mode = 'WORLD'
+ let waitingForChoice = false
 
  onMount(async () => {
      const res = await fetch(`/gus.json`)
@@ -27,21 +28,14 @@
      currentSpeaker = null
  }
 
- function getParagraph() {
-     while(story.canContinue) {
-         let nextLine = story.Continue()
-
-         if (nextLine === '...\n') {
-             return
-         }
-
-         currentLine += nextLine
-     }
- }
-
  function continueStory() {
      while (story.canContinue) {
          let nextLine = story.Continue()
+
+         if (nextLine.includes(': ')) {
+             nextLine = nextLine.split(': ')[1]
+         }
+
          currentLine += nextLine
      }
 
@@ -51,12 +45,23 @@
  }
 
  function choose(index) {
+     waitingForChoice = false
      currentLine = ''
      paragraphs = []
      story.ChooseChoiceIndex(index)
      continueStory()
  }
 
+ function handlePrimary() {
+     if (mode === 'ENGAGEMENT') {
+         waitingForChoice = true
+         next()
+     }
+ }
+
+ function next() {
+
+ }
 
  let inc
  let x = 0
@@ -355,31 +360,45 @@ function lerp(v0, v1, t) {
 	<div class="screen">
 		<P5 {sketch} />
 		<div class="dialog-box">
-			<div class={ `dialog-box__inner ${mode === 'ENGAGEMENT' ? 'dialog-box__inner--is-open' : ''}` }>{currentLine}</div>
+			<div class={ `dialog-box__inner ${mode === 'ENGAGEMENT' ? 'dialog-box__inner--is-open' : ''}` }>
+                <div class="dialog-box__inner__text">{currentLine}</div>
+                <img src="p-gus.png" alt="">
+            </div>
 		</div>
 	</div>
 
-    {#if mode === 'WORLD'}
-        <Dpad on:press={ handlePress } on:release={ handleRelease } />
-    {/if}
-	<!-- <input type="range" min="1" max="8" step="0.01" bind:value={ s }> -->
+        {#if !waitingForChoice}
+            <div class="controller">
+                {#if mode === 'WORLD'}
+                    <Dpad on:press={ handlePress } on:release={ handleRelease } />
+                {/if}
+                <!-- <input type="range" min="1" max="8" step="0.01" bind:value={ s }> -->
+                <button class="btn btn--primary" on:click={ handlePrimary }></button>
 
-        {#if story && choices && choices.length > 0}
-            {#each choices as choice,i}
-                <button class="ab__option" on:click|preventDefault={() => choose(i)}>{choice.text}</button>
-            {/each}
+            </div>
+        {/if}
+
+        {#if story && choices && choices.length > 0 && waitingForChoice}
+            <div class="choice-list">
+                {#each choices as choice,i}
+                    <button class="ab__option" on:click|preventDefault={() => choose(i)}>{choice.text}</button>
+                {/each}
+            </div>
         {/if}
         {#if mode === 'ENGAGEMENT' && story && !story.canContinue && choices.length === 0}
             <button on:click={() => {
-
                              currentLine = ''
+                             waitingForChoice = false
                              mode = 'WORLD'
                              }}>ok</button>
         {/if}
 
 	<pre class="debug">
 mode: <strong>{mode}</strong>
-currentLine: {currentLine}
+
+ink stuff
+---------
+currentLine: <span style="color: white">{currentLine}</span>
 {#if mode === 'ENGAGEMENT'}
 canContinue: {story && story.canContinue}
 choices: {choices.length}
@@ -395,7 +414,16 @@ s: {s}
 </main>
 
 <style>
+ main {
+     max-width: 450px;
+     margin: 0 auto;
+
+     position: relative;
+ }
+
  .debug {
+     display: none;
+
 	 position: fixed;
 	 top: 1rem;
 	 left: 1rem;
@@ -409,10 +437,58 @@ s: {s}
 	 overflow: hidden;
  }
 
+ .controller {
+     display: flex;
+     justify-content: space-between;
+     min-height: 168px;
+ }
+
+ .btn {
+     width:  132px;
+     height: 132px;
+     align-self: center;
+     margin-right:1.5rem;
+
+     cursor: pointer;
+
+     position: relative;
+     border-radius: 99rem;
+
+     background: red;
+     border: none;
+
+     margin-left: auto;
+     background: #00CAD0;
+ }
+
+ .btn[disabled] {
+     background: transparent;
+     border: 3px solid #00CAD0;
+ }
+
+ .btn::after {
+     content: '';
+
+     --pull: -16px;
+
+     /* this pulls the element outside its parent,
+     creating a larger clickable area */
+     position: absolute;
+     top: var(--pull);
+     right: var(--pull);
+     bottom: var(--pull);
+     left: var(--pull);
+
+     border-radius: 99rem;
+ }
+
+ .btn--primary {
+
+ }
+
  .dialog-box {
 	 position: absolute;
-	 top: 0;
-	 left: 0;
+	 top: 0;	 left: 0;
 	 width: 100%;
 
 	 /* this stuff is a hack
@@ -422,19 +498,61 @@ s: {s}
  }
 
  .dialog-box__inner {
+     display: flex;
+     flex-direction: column;
+     justify-content: flex-end;
+
 	 position: absolute;
 	 top: 0;
 	 left: 0;
 	 width: 100%;
 	 height: 100%;
-	 background: red;
+	 background: #051EFF;
 	 color: white;
 
 	 transition: 500ms transform cubic-bezier(0.190, 1.000, 0.220, 1.000);
-	 transform: translate3d(0, 100%, 0);
+     transform-origin: 50% 100%;
+	 transform: translate3d(0, 100%, 0) scale(1);
+
+     white-space: pre; }
+
+ .dialog-box__inner__text {
+     margin-left: 1.5rem;
+     justify-self: flex-end;
+ }
+
+ .dialog-box__inner img {
+     align-self: flex-start;
  }
 
  .dialog-box__inner--is-open {
-	 transform: translate3d(0, 0%, 0);
+	 transform: translate3d(0, 0px, 0) scale(1) rotateX(0);
  }
+
+ .choice-list {
+     display: flex;
+     flex-direction: column;
+     width: 100%;
+     min-height: 150px;
+     align-items: end;
+ }
+
+ .choice-list button {
+     flex: 1;
+     display: block;
+     padding: 1.5rem;
+     background: #A7ACE8;
+     border-radius: 99rem;
+     border: none;
+     margin-bottom: 0.5rem;
+ }
+
+ .choice-list button:first-child {
+     margin-top: 0.5rem;
+ }
+
+ .choice-list button:last-child {
+     margin-bottom: none;
+ }
+
 </style>
