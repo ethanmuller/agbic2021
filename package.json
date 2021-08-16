@@ -18,9 +18,11 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
+    "@rollup/plugin-json": "^4.1.0",
     "inkjs": "^2.0.0",
     "p5": "^1.4.0",
     "p5-svelte": "^2.2.2",
-    "sirv-cli": "^1.0.0"
+    "sirv-cli": "^1.0.0",
+    "syllable": "^5.0.0"
   }
 }

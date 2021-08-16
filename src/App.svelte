@@ -1,4 +1,5 @@
 <script>
+ import { syllable } from 'syllable'
  import { onMount } from 'svelte'
  import { Story } from 'inkjs'
  import P5 from 'p5-svelte';
@@ -12,6 +13,8 @@
  let choices = []
  let mode = 'WORLD'
  let waitingForChoice = false
+ let portrait = 'p-gus---2.png'
+ let syl = 0
 
  onMount(async () => {
      const res = await fetch(`/gus.json`)
@@ -49,6 +52,9 @@
      currentLine = ''
      paragraphs = []
      story.ChooseChoiceIndex(index)
+     if (story.canContinue) {
+         story.Continue()
+     }
      continueStory()
  }
 
@@ -354,6 +360,24 @@ function lerp(v0, v1, t) {
 	 lastMove = now
  }
 
+ function open() {
+    portrait = 'p-gus---3.png'
+ }
+ function close() {
+     portrait = 'p-gus---2.png'
+     syl += 1
+ }
+
+ function oc(num) {
+     if (syl < syllable(currentLine)) {
+         open()
+         window.setTimeout(close, 50)
+         window.setTimeout(oc, 100)
+     }
+ }
+
+ window.oc = oc
+
 </script>
 
 <main>
@@ -361,8 +385,8 @@ function lerp(v0, v1, t) {
 		<P5 {sketch} />
 		<div class="dialog-box">
 			<div class={ `dialog-box__inner ${mode === 'ENGAGEMENT' ? 'dialog-box__inner--is-open' : ''}` }>
-                <div class="dialog-box__inner__text">{currentLine}</div>
-                <img src="p-gus.png" alt="">
+                <div class="dialog-box__inner__text">{currentLine} {syllable(currentLine)}</div>
+                <img src={ portrait } alt="">
             </div>
 		</div>
 	</div>
