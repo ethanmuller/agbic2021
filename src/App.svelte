@@ -15,6 +15,9 @@
  let waitingForChoice = false
  let portrait = 'p-gus---2.png'
  let syl = 0
+ let dialogState = null
+ let currentBubble = 0
+ let bubbles = []
 
  onMount(async () => {
      const res = await fetch(`/gus.json`)
@@ -42,6 +45,10 @@
          currentLine += nextLine
      }
 
+     bubbles = currentLine.split('\n...\n')
+     console.log(bubbles)
+     currentBubble = 0
+
      choices = story.currentChoices
      // getParagraph()
      // currentLineToParagraph()
@@ -58,15 +65,32 @@
      continueStory()
  }
 
- function handlePrimary() {
-     if (mode === 'ENGAGEMENT') {
+ function backToWorld() {
+     currentLine = ''
+     waitingForChoice = false
+     mode = 'WORLD'
+ }
+
+ function advance() {
+     const conversationOver = story && !story.canContinue && choices.length === 0 && currentBubble === bubbles.length - 1
+
+     if (conversationOver) {
+         return backToWorld()
+     }
+
+     if (currentBubble < bubbles.length - 1) {
+        currentBubble = (currentBubble + 1)
+     } else {
          waitingForChoice = true
-         next()
      }
  }
 
- function next() {
-
+ function handlePrimary() {
+     if (mode === 'ENGAGEMENT') {
+         advance()
+     } else if (mode === 'WORLD') {
+         console.log('ur in the world')
+     }
  }
 
  let inc
@@ -365,18 +389,7 @@ function lerp(v0, v1, t) {
  }
  function close() {
      portrait = 'p-gus---2.png'
-     syl += 1
  }
-
- function oc(num) {
-     if (syl < syllable(currentLine)) {
-         open()
-         window.setTimeout(close, 50)
-         window.setTimeout(oc, 100)
-     }
- }
-
- window.oc = oc
 
 </script>
 
@@ -385,7 +398,7 @@ function lerp(v0, v1, t) {
 		<P5 {sketch} />
 		<div class="dialog-box">
 			<div class={ `dialog-box__inner ${mode === 'ENGAGEMENT' ? 'dialog-box__inner--is-open' : ''}` }>
-                <div class="dialog-box__inner__text">{currentLine} {syllable(currentLine)}</div>
+                <div class="dialog-box__inner__text">{bubbles[currentBubble]}</div>
                 <img src={ portrait } alt="">
             </div>
 		</div>
@@ -408,13 +421,6 @@ function lerp(v0, v1, t) {
                     <button class="ab__option" on:click|preventDefault={() => choose(i)}>{choice.text}</button>
                 {/each}
             </div>
-        {/if}
-        {#if mode === 'ENGAGEMENT' && story && !story.canContinue && choices.length === 0}
-            <button on:click={() => {
-                             currentLine = ''
-                             waitingForChoice = false
-                             mode = 'WORLD'
-                             }}>ok</button>
         {/if}
 
 	<pre class="debug">
@@ -547,6 +553,7 @@ s: {s}
 
  .dialog-box__inner img {
      align-self: flex-start;
+     image-rendering: crisp-edges;
  }
 
  .dialog-box__inner--is-open {
