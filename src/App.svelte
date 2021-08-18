@@ -485,10 +485,10 @@ s: {s}
      background: #00CAD0;
  }
 
- .btn[disabled] {
-     background: transparent;
-     border: 3px solid #00CAD0;
- }
+ /* .btn[disabled] {
+    background: transparent;
+    border: 3px solid #00CAD0;
+    } */
 
  .btn::after {
      content: '';
