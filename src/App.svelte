@@ -87,7 +87,8 @@
 
  function handlePrimary() {
      if (mode === 'ENGAGEMENT') {
-         advance()
+         open()
+         // advance()
      } else if (mode === 'WORLD') {
          console.log('ur in the world')
      }
@@ -391,6 +392,14 @@ function lerp(v0, v1, t) {
      portrait = 'p-gus---2.png'
  }
 
+ function primaryPress() {
+     open()
+ }
+
+ function primaryRelease() {
+     close()
+ }
+
 </script>
 
 <main>
@@ -410,7 +419,14 @@ function lerp(v0, v1, t) {
                     <Dpad on:press={ handlePress } on:release={ handleRelease } />
                 {/if}
                 <!-- <input type="range" min="1" max="8" step="0.01" bind:value={ s }> -->
-                <button class="btn btn--primary" on:click={ handlePrimary }></button>
+                <button class="btn btn--primary"
+
+                on:touchstart|preventDefault={ primaryPress }
+                on:mousedown|preventDefault={ primaryPress }
+                on:touchend|preventDefault={ primaryRelease }
+                on:mouseup|preventDefault={ primaryRelease }
+
+                ></button>
 
             </div>
         {/if}
