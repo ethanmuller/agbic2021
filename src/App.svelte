@@ -5,6 +5,25 @@
  import P5 from 'p5-svelte';
  import Dpad from './Dpad.svelte';
 
+ import * as Tone from 'tone'
+
+ const filter = new Tone.Filter({
+     type : 'lowpass',
+     frequency : 350 ,
+     rolloff : -48 ,
+     Q : 8,
+     gain : 0
+ });
+
+ const osc = new Tone.OmniOscillator(440, "amsawtooth").chain(Tone.Destination)
+
+ // const synth = new Tone.AMSynth({
+ //     envelope: {
+ //         attack: 10,
+ //         decay: 200,
+ //         release: 200,
+ //     }
+ // }).toDestination();
 
  let currentLine = ''
  let currentSpeaker = null
@@ -87,7 +106,7 @@
 
  function handlePrimary() {
      if (mode === 'ENGAGEMENT') {
-         open()
+         // open()
          // advance()
      } else if (mode === 'WORLD') {
          console.log('ur in the world')
@@ -393,7 +412,19 @@ function lerp(v0, v1, t) {
  }
 
  function primaryPress() {
+     if (mode === 'ENGAGEMENT') {
+         // open()
+         // advance()
+     } else if (mode === 'WORLD') {
+         // console.log('ur in the world')
+     }
+
      open()
+
+     osc.frequency.value = Math.random()*100
+     osc.frequency.rampTo(Math.random()*100+400, 0.1)
+     osc.start().stop("+0.1")
+     // synth.triggerAttackRelease("C4", "8n");
  }
 
  function primaryRelease() {
