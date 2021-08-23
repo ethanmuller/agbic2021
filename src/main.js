@@ -1,6 +1,7 @@
 import App from './App.svelte';
+import Paragraphs from './Paragraphs.svelte';
 
-const app = new App({
+const app = new Paragraphs({
 	target: document.body,
 	props: {
 	}

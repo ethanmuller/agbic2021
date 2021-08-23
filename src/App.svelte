@@ -104,15 +104,6 @@
      }
  }
 
- function handlePrimary() {
-     if (mode === 'ENGAGEMENT') {
-         // open()
-         // advance()
-     } else if (mode === 'WORLD') {
-         console.log('ur in the world')
-     }
- }
-
  let inc
  let x = 0
  let y = 0

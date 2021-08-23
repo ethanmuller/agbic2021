@@ -15,10 +15,10 @@ eating me
 omg haha
 shut upppp
 ur an idiot :)
-...
+.
 i think we're
 gonna be good friends
-...
+.
 -> awkward_silence
 === polite
 thanks for welcoming me
@@ -34,9 +34,11 @@ thanks for welcoming me
  * ...
  -> awkward_silence
 === awkward_silence
+...
+.
 so yeah
 anyways
-...
+.
 wanna be friends?
 + yes
 -> friends_yes
@@ -48,14 +50,13 @@ cool :)
 === friends_no
 oh damn
 ok yeah no
-...
+.
 sorry
 that was weird
 -> END
 === eat
-...
 you hear police sirens
 in the distance
-...
+.
 you are taken to jail
 -> END
